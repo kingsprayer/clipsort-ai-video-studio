@@ -1,0 +1,214 @@
+{
+  "specification_metadata": {
+    "title": "AI Video Classification & Categorization Specification",
+    "version": "3.0.0",
+    "architecture": "Dual-Track Multi-Dimensional Classification",
+    "status": "Production-Ready",
+    "guarantees": {
+      "timeline_coverage": "100% Contiguous [0.0s to T]",
+      "max_gap_seconds": 0.0,
+      "allow_dropped_frames": false,
+      "b_roll_integrity": "Protected via dedicated Outtake/Quality Gate"
+    }
+  },
+  "classification_dimensions": {
+    "visual_layer": {
+      "description": "Physical camera and subject composition.",
+      "roles": ["A_ROLL", "B_ROLL", "GRAPHICS_SLATE", "SCREENCAST", "OUTTAKE"]
+    },
+    "narrative_layer": {
+      "description": "Storytelling role and viewer engagement intent.",
+      "functions": ["HOOK", "CORE_BODY", "CTA", "ENDSCREEN", "SPONSOR", "DEAD_AIR"]
+    }
+  },
+  "categories": {
+    "HOOKS": {
+      "priority": 1,
+      "qualification_threshold": 0.75,
+      "primary_layer": "narrative",
+      "export_format": "VIDEO_MP4_WITH_POSTER",
+      "description": "Attention-grabbing opening moments stopping viewer scrolling.",
+      "temporal_rules": {
+        "search_window": "0.0s to first scene transition (max 18.0s)",
+        "min_duration_seconds": 2.0,
+        "recommended_min_duration_seconds": 3.0,
+        "max_duration_seconds": 18.0,
+        "fade_absorption_cutoff_seconds": 2.5
+      },
+      "cv_signals": {
+        "direct_lens_gaze_ratio_min": 0.25,
+        "direct_lens_gaze_ratio_optimal": 0.90,
+        "framing": "Medium close-up or close-up portrait",
+        "motion_energy": "High dynamic entry or pattern interrupt"
+      },
+      "nlp_signals": {
+        "narrative_role": "Premise setup, curiosity gap, interrogative opening",
+        "multilingual_keywords": [
+          "did you know", "stop scrolling", "pov", "the secret to", "here is why",
+          "listen up", "imagine", "what if I told you", "what if", "why do",
+          "how to", "watch this", "before you", "never do this", "you won't believe",
+          "the real reason", "in this video", "welcome back", "hey guys", "hey",
+          "kya aap jante", "aaj hum", "yeh dekho", "suno", "wait until you see",
+          "this is why", "here's the thing", "let me explain", "number one"
+        ]
+      }
+    },
+    "ENDSCREENS": {
+      "priority": 2,
+      "qualification_threshold": 0.70,
+      "primary_layer": "hybrid",
+      "export_format": "DUAL_VIDEO_MP4_AND_IMAGE_JPG",
+      "description": "Terminal closing branding cards, outro slates, or static farewell holds.",
+      "presence_rule": "Only classified if video contains an outro card or farewell hold.",
+      "temporal_rules": {
+        "search_window": "et >= TotalDuration - 0.5s or final 10% of timeline",
+        "min_duration_seconds": 0.8,
+        "max_duration_seconds": 25.0
+      },
+      "detection_criteria": {
+        "solid_title_slate": {
+          "white_slate": { "mean_brightness_min": 210.0, "std_deviation_max": 25.0 },
+          "dark_slate": { "mean_brightness_max": 15.0, "std_deviation_max": 25.0 }
+        },
+        "awkward_hold": {
+          "motion_variance_max": 5.0,
+          "negative_space_ratio_min": 0.40,
+          "description": "Presenter holds static pose leaving space for video cards."
+        },
+        "outro_speech_keywords": [
+          "thanks for watching", "thank you for watching", "thank you",
+          "see you in the next one", "see you next time", "until next time",
+          "peace out", "peace", "take care", "that wraps it up", "that's all for today",
+          "stay tuned", "endscreen", "outro", "shukriya", "khuda hafiz", "alvida", "fir milenge"
+        ]
+      }
+    },
+    "CTA": {
+      "priority": 3,
+      "qualification_threshold": 0.70,
+      "primary_layer": "narrative",
+      "export_format": "VIDEO_MP4_WITH_POSTER",
+      "description": "Audience conversion moments directing viewers to perform an explicit action.",
+      "temporal_rules": {
+        "search_window": "Flexible across timeline (Early Hook, Mid-Roll, or Pre-Outro)",
+        "min_duration_seconds": 1.5,
+        "max_duration_seconds": 25.0
+      },
+      "detection_criteria": {
+        "imperative_action_keywords": [
+          "subscribe", "hit that subscribe", "drop a like", "leave a comment",
+          "comment down below", "link in bio", "link in description", "check the link",
+          "click the link", "download free", "download", "join community", "use code",
+          "sign up", "visit website", "follow for more", "follow me", "share this",
+          "tap the bell", "buy now", "order now", "shop now", "follow for part 2",
+          "like karo", "share karo", "subscribe karo", "channel ko", "comment karo",
+          "stream now", "watch now", "in theaters", "out now", "get yours"
+        ],
+        "cv_signals": {
+          "pointing_gestures": "Presenter pointing to UI borders, lower-thirds, or bio links",
+          "on_screen_typography": "Action text, URLs, or promo codes"
+        }
+      }
+    },
+    "A_ROLLS": {
+      "priority": 4,
+      "qualification_threshold": 0.70,
+      "primary_layer": "visual",
+      "export_format": "VIDEO_MP4_WITH_POSTER",
+      "description": "Primary narrative spine containing continuous speech, monologue, or dialogue.",
+      "temporal_rules": {
+        "min_duration_seconds": 1.5,
+        "max_duration_seconds": 120.0,
+        "monologue_consolidation_pause_max_seconds": 0.35
+      },
+      "cv_signals": {
+        "face_presence_ratio_min": 0.20,
+        "head_yaw_max_degrees": 38.0,
+        "framing": "Medium shot or talking head facing audience"
+      },
+      "acoustic_signals": {
+        "continuous_dialogue": true,
+        "synchronous_speech": true
+      }
+    },
+    "OUTTAKES": {
+      "priority": 5,
+      "qualification_threshold": 0.60,
+      "primary_layer": "quality_gate",
+      "export_format": "VIDEO_MP4_QUARANTINED",
+      "description": "Unusable footage filtered out to prevent polluting B-Roll.",
+      "detection_criteria": {
+        "camera_jerk_motion_min": 35.0,
+        "dead_air_motion_max": 0.8,
+        "dead_air_duration_min_seconds": 2.5,
+        "verbal_retake_keywords": [
+          "wait", "let me restart", "take two", "cut", "hold on", "scratch that", "my bad", "start over"
+        ]
+      }
+    },
+    "B_ROLLS": {
+      "priority": 6,
+      "qualification_threshold": 0.65,
+      "primary_layer": "visual",
+      "export_format": "VIDEO_MP4_WITH_POSTER",
+      "description": "Intentional supplementary visual cutaways and cinematic footage.",
+      "temporal_rules": {
+        "min_duration_seconds": 1.0,
+        "max_duration_seconds": 30.0
+      },
+      "cv_signals": {
+        "face_presence_ratio_max": 0.20,
+        "head_yaw_profile_threshold_degrees": 45.0,
+        "camera_motion_multiplier_range": [1.2, 2.5],
+        "object_dominance": ["hands", "products", "screens", "clothing", "environments", "landscapes"]
+      },
+      "quality_gate": {
+        "min_quality_score": 0.50,
+        "filter_outtakes": true
+      }
+    }
+  },
+  "scene_cut_and_joint_detection": {
+    "pixel_difference": {
+      "threshold": 22.0,
+      "formula": "Δ_motion = (1 / (W × H)) × Σ |I_t(x, y) - I_{t-1}(x, y)|"
+    },
+    "histogram_correlation": {
+      "threshold": 0.78,
+      "formula": "r(H1, H2) = Cov(H1, H2) / (Std(H1) × Std(H2))"
+    },
+    "face_transition_cut": {
+      "motion_diff_threshold": 12.0,
+      "rule": "Cut triggered when face presence toggles abruptly between consecutive frames"
+    },
+    "vad_speech_boundaries": {
+      "min_silence_duration_ms": 300,
+      "rule": "Align cuts with natural speech pauses to prevent mid-word clipping"
+    }
+  },
+  "export_specifications": {
+    "directory_structure": [
+      "backend/output/HOOKS/",
+      "backend/output/A_ROLLS/",
+      "backend/output/B_ROLLS/",
+      "backend/output/CTA/",
+      "backend/output/ENDSCREENS/",
+      "backend/output/OUTTAKES/"
+    ],
+    "manifest_fields": [
+      "category",
+      "visual_role",
+      "narrative_function",
+      "quality_score",
+      "filename",
+      "folder_path",
+      "source_video",
+      "start",
+      "end",
+      "duration",
+      "confidence",
+      "reason"
+    ],
+    "nle_support": ["DaVinci Resolve EDL", "Adobe Premiere Pro Markers", "Final Cut Pro XML"]
+  }
+}

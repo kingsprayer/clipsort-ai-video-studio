@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>AI Video Classification & Categorization Specification V3.0.0</title>
+<style>
+  @page {
+    size: A4;
+    margin: 16mm 14mm 16mm 14mm;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    line-height: 1.55;
+    font-size: 13px;
+    background: #fff;
+    margin: 0;
+    padding: 0;
+  }
+  h1 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    border-bottom: 2px solid #2563eb;
+    padding-bottom: 8px;
+    margin-top: 0;
+    margin-bottom: 12px;
+  }
+  h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1e3a8a;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 6px;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    page-break-after: avoid;
+  }
+  p, li {
+    color: #334155;
+  }
+  ul, ol {
+    padding-left: 20px;
+    margin-top: 4px;
+    margin-bottom: 10px;
+  }
+  li {
+    margin-bottom: 4px;
+  }
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    background: #f1f5f9;
+    color: #0369a1;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    border: 1px solid #e2e8f0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 12px;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid #cbd5e1;
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background-color: #f1f5f9;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  tr:nth-child(even) {
+    background-color: #f8fafc;
+  }
+  blockquote {
+    margin: 12px 0;
+    padding: 10px 16px;
+    border-left: 4px solid #3b82f6;
+    background: #f0f7ff;
+    color: #1e40af;
+    border-radius: 0 6px 6px 0;
+    font-size: 13.5px;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 18px 0;
+  }
+</style>
+</head>
+<body>
+<h1>AI Video Classification &amp; Categorization Logic Specification</h1>
+<p><strong>Version:</strong> 3.0.0<br />
+<strong>Architecture:</strong> Dual-Track Multi-Dimensional Classification<br />
+<strong>Status:</strong> Production-Ready<br />
+<strong>Core Guarantees:</strong> 100% Contiguous Timeline Coverage [0.0s to T] • Max Gap: 0.0s • B-Roll Integrity Protected via Outtake Quality Gate</p>
+<hr />
+<h2>1. Dual-Track Classification Architecture</h2>
+<p>Every frame and take is evaluated across two synchronized dimensions:</p>
+<h3>1.1 Dimension 1: Visual Asset Layer</h3>
+<p>Physical camera and subject composition:<br />
+- <strong><code>A_ROLL</code></strong>: Subject talking head facing camera, synchronous dialogue, or interview framing.<br />
+- <strong><code>B_ROLL</code></strong>: Intentional supplementary visual cutaway, product demonstration, environment, or cinematic movement.<br />
+- <strong><code>GRAPHICS_SLATE</code></strong>: Title slate, brand logo, full-screen text, or color card.<br />
+- <strong><code>SCREENCAST</code></strong>: Screen recordings or software demonstrations.<br />
+- <strong><code>OUTTAKE</code></strong>: Unusable footage, camera jerks, flubbed lines, or dead air quarantined to prevent polluting B-Roll.</p>
+<h3>1.2 Dimension 2: Narrative &amp; Editorial Layer</h3>
+<p>Storytelling function and viewer engagement role:<br />
+- <strong><code>HOOK</code></strong>: Scroll-stopping opening moments delivering premise, problem, or intrigue.<br />
+- <strong><code>CORE_BODY</code></strong>: Central narrative, storytelling explanation, or interview delivery.<br />
+- <strong><code>CTA</code> (Call To Action)</strong>: Conversion prompts directing viewers to subscribe, buy, or visit.<br />
+- <strong><code>ENDSCREEN</code></strong>: Closing moments reserved for clickable video cards, channel subscribe logos, or outro slates.<br />
+- <strong><code>SPONSOR</code></strong>: Dedicated brand sponsorship reads or partner promos.<br />
+- <strong><code>DEAD_AIR</code></strong>: Pauses, camera resets, or unusable silence before or after takes.</p>
+<hr />
+<h2>2. Priority Hierarchy &amp; Decision Arbitration</h2>
+<p>When any contiguous video segment is evaluated, classification resolves in this strict priority order:</p>
+<blockquote>
+<p><strong><code>HOOKS</code> ➔ <code>ENDSCREENS</code> ➔ <code>CTA</code> ➔ <code>A_ROLLS</code> ➔ <code>OUTTAKES</code> ➔ <code>B_ROLLS</code> (Fallback)</strong></p>
+</blockquote>
+<ol>
+<li><strong><code>HOOKS</code> (Priority 1 — Threshold ≥ 75%)</strong>: Opening capture window.</li>
+<li><strong><code>ENDSCREENS</code> (Priority 2 — Threshold ≥ 70%)</strong>: Outro card / farewell hold (only if present in footage).</li>
+<li><strong><code>CTA</code> (Priority 3 — Threshold ≥ 70%)</strong>: Conversion moments (flexible anywhere on timeline).</li>
+<li><strong><code>A_ROLLS</code> (Priority 4 — Threshold ≥ 70%)</strong>: Talking-head narrative spine.</li>
+<li><strong><code>OUTTAKES</code> (Priority 5 — Threshold ≥ 60%)</strong>: Unusable footage quarantined to protect B-Roll.</li>
+<li><strong><code>B_ROLLS</code> (Priority 6 — Threshold ≥ 65%)</strong>: Clean, intentional visual cutaways and guaranteed fallback.</li>
+</ol>
+<hr />
+<h2>3. Detailed Category Specifications</h2>
+<hr />
+<h3>🎣 1. HOOKS (Priority 1)</h3>
+<ul>
+<li><strong>Qualification Threshold</strong>: ≥ 75% Confidence</li>
+<li><strong>Primary Layer</strong>: Narrative Function (<code>HOOK</code>)</li>
+<li><strong>Export Format</strong>: Video MP4 with Web Poster Thumbnail</li>
+<li><strong>Temporal Rules</strong>:</li>
+<li>Search Window: 0.0s to first scene transition (max 18.0s).</li>
+<li>Minimum Duration: 2.0s (recommended 3.0s).</li>
+<li>Maximum Duration: 18.0s.</li>
+<li>Fade Absorption Cutoff: 2.5s (absorbs opening black frames / fades into the hook).</li>
+<li><strong>Computer Vision (CV) Signals</strong>:</li>
+<li>Direct Lens Gaze Ratio: ≥ 0.25 (optimal ≥ 0.90).</li>
+<li>Framing: Medium close-up or close-up portrait framing.</li>
+<li>Motion Energy: High dynamic entry into frame or visual pattern interrupt.</li>
+<li><strong>Speech &amp; Linguistic (NLP) Signals</strong>:</li>
+<li>Narrative Role: Premise setup, curiosity gap, interrogative opening.</li>
+<li>Multilingual Keywords: <code>"did you know"</code>, <code>"stop scrolling"</code>, <code>"pov"</code>, <code>"the secret to"</code>, <code>"here is why"</code>, <code>"listen up"</code>, <code>"imagine"</code>, <code>"what if I told you"</code>, <code>"what if"</code>, <code>"why do"</code>, <code>"how to"</code>, <code>"watch this"</code>, <code>"before you"</code>, <code>"never do this"</code>, <code>"you won't believe"</code>, <code>"the real reason"</code>, <code>"in this video"</code>, <code>"welcome back"</code>, <code>"hey guys"</code>, <code>"kya aap jante"</code>, <code>"aaj hum"</code>, <code>"yeh dekho"</code>, <code>"suno"</code>, <code>"wait until you see"</code>, <code>"this is why"</code>, <code>"here's the thing"</code>, <code>"let me explain"</code>, <code>"number one"</code>.</li>
+</ul>
+<hr />
+<h3>🖼️ 2. ENDSCREENS (Priority 2)</h3>
+<ul>
+<li><strong>Qualification Threshold</strong>: ≥ 70% Confidence</li>
+<li><strong>Primary Layer</strong>: Hybrid (<code>GRAPHICS_SLATE</code> / <code>A_ROLL</code> + <code>ENDSCREEN</code>)</li>
+<li><strong>Export Format</strong>: Dual Export — BOTH Video <code>.mp4</code> and High-Res Image Snapshot <code>.jpg</code></li>
+<li><strong>Presence Rule</strong>: Only classified if video actually contains an outro card or farewell hold.</li>
+<li><strong>Temporal Rules</strong>:</li>
+<li>Search Window: Terminal segment (<code>et &gt;= TotalDuration - 0.5s</code> or final 10% of timeline).</li>
+<li>Duration Range: 0.8s to 25.0s.</li>
+<li><strong>Detection Criteria</strong>:</li>
+<li>Solid White Slate: Mean brightness ≥ 210.0 and std deviation ≤ 25.0.</li>
+<li>Solid Dark Slate: Mean brightness ≤ 15.0 and std deviation ≤ 25.0.</li>
+<li>The "Awkward Hold": Presenter holds static pose leaving empty room for video cards (motion variance ≤ 5.0, negative space ratio ≥ 0.40).</li>
+<li>Outro Speech Keywords: <code>"thanks for watching"</code>, <code>"thank you for watching"</code>, <code>"thank you"</code>, <code>"see you in the next one"</code>, <code>"see you next time"</code>, <code>"until next time"</code>, <code>"peace out"</code>, <code>"peace"</code>, <code>"take care"</code>, <code>"that wraps it up"</code>, <code>"that's all for today"</code>, <code>"stay tuned"</code>, <code>"endscreen"</code>, <code>"outro"</code>, <code>"shukriya"</code>, <code>"khuda hafiz"</code>, <code>"alvida"</code>, <code>"fir milenge"</code>.</li>
+</ul>
+<hr />
+<h3>⚡ 3. CTA — CALL TO ACTION (Priority 3)</h3>
+<ul>
+<li><strong>Qualification Threshold</strong>: ≥ 70% Confidence</li>
+<li><strong>Primary Layer</strong>: Narrative Function (<code>CTA</code>)</li>
+<li><strong>Export Format</strong>: Video MP4 with Web Poster Thumbnail</li>
+<li><strong>Temporal Rules</strong>:</li>
+<li>Search Window: Flexible across the timeline (Early Hook, Mid-Roll, or Pre-Outro).</li>
+<li>Duration Range: 1.5s to 25.0s.</li>
+<li><strong>Detection Criteria</strong>:</li>
+<li>Imperative Action Keywords: <code>"subscribe"</code>, <code>"hit that subscribe"</code>, <code>"drop a like"</code>, <code>"leave a comment"</code>, <code>"comment down below"</code>, <code>"link in bio"</code>, <code>"link in description"</code>, <code>"check the link"</code>, <code>"click the link"</code>, <code>"download free"</code>, <code>"download"</code>, <code>"join community"</code>, <code>"use code"</code>, <code>"sign up"</code>, <code>"visit website"</code>, <code>"follow for more"</code>, <code>"follow me"</code>, <code>"share this"</code>, <code>"tap the bell"</code>, <code>"buy now"</code>, <code>"order now"</code>, <code>"shop now"</code>, <code>"follow for part 2"</code>, <code>"like karo"</code>, <code>"share karo"</code>, <code>"subscribe karo"</code>, <code>"channel ko"</code>, <code>"comment karo"</code>, <code>"stream now"</code>, <code>"watch now"</code>, <code>"in theaters"</code>, <code>"out now"</code>, <code>"get yours"</code>.</li>
+<li>Computer Vision: Pointing gestures toward UI borders, lower-thirds, or bio links; on-screen typography containing conversion links or promo codes.</li>
+</ul>
+<hr />
+<h3>🗣️ 4. A_ROLLS (Priority 4)</h3>
+<ul>
+<li><strong>Qualification Threshold</strong>: ≥ 70% Confidence</li>
+<li><strong>Primary Layer</strong>: Visual Asset (<code>A_ROLL</code>)</li>
+<li><strong>Export Format</strong>: Video MP4 with Web Poster Thumbnail</li>
+<li><strong>Temporal Rules</strong>:</li>
+<li>Duration Range: 1.5s to 120.0s.</li>
+<li>Monologue Consolidation: Continuous speech takes across brief pauses (up to 0.35s) without camera angle cuts are consolidated into cohesive takes.</li>
+<li><strong>Computer Vision (CV) Signals</strong>:</li>
+<li>Face Presence Ratio: ≥ 0.20 of sampled frames.</li>
+<li>Head Yaw: ≤ 38.0° (subject facing front toward camera/audience).</li>
+<li>Framing: Medium shot or talking head facing audience.</li>
+<li><strong>Acoustic Signals</strong>:</li>
+<li>Continuous dialogue, synchronous speech.</li>
+</ul>
+<hr />
+<h3>⚠️ 5. OUTTAKES (Priority 5 — Quality Gate Layer)</h3>
+<ul>
+<li><strong>Qualification Threshold</strong>: ≥ 60% Confidence</li>
+<li><strong>Primary Layer</strong>: Quality Gate (<code>OUTTAKE</code>)</li>
+<li><strong>Export Format</strong>: Video MP4 Quarantined</li>
+<li><strong>Primary Function</strong>: Quarantines unusable, damaged, or flubbed footage to protect B-Roll purity.</li>
+<li><strong>Detection Criteria</strong>:</li>
+<li>Camera Jerk Motion: Average motion difference ≥ 35.0 (erratic shake, accidental whip pan, ground drops).</li>
+<li>Dead Air / Frozen Rig: Motion variance ≤ 0.8 with duration ≥ 2.5s without speech.</li>
+<li>Verbal Retake Keywords: Spoken flub phrases: <code>"wait"</code>, <code>"let me restart"</code>, <code>"take two"</code>, <code>"cut"</code>, <code>"hold on"</code>, <code>"scratch that"</code>, <code>"my bad"</code>, <code>"start over"</code>.</li>
+<li>Quality Score: Low quality rating (&lt; 0.50).</li>
+</ul>
+<hr />
+<h3>🎬 6. B_ROLLS (Priority 6 — Guaranteed Clean Fallback)</h3>
+<ul>
+<li><strong>Qualification Threshold</strong>: ≥ 65% Confidence</li>
+<li><strong>Primary Layer</strong>: Visual Asset (<code>B_ROLL</code>)</li>
+<li><strong>Export Format</strong>: Video MP4 with Web Poster Thumbnail</li>
+<li><strong>Primary Function</strong>: Clean, intentional supplementary visual cutaways and cinematic footage.</li>
+<li><strong>Temporal Rules</strong>:</li>
+<li>Duration Range: 1.0s to 30.0s.</li>
+<li><strong>Computer Vision (CV) Signals</strong>:</li>
+<li>Face Presence: Low face ratio (≤ 0.20) or no face.</li>
+<li>Head Pose: Profile view (yaw ≥ 45.0°).</li>
+<li>Camera Motion Multiplier: 1.2× to 2.5× baseline (smooth pans, tracking, or handheld movement).</li>
+<li>Object Dominance: Hands, products, screens, clothing, environments, landscapes.</li>
+<li><strong>Quality Gate Integration</strong>:</li>
+<li>Requires Quality Score ≥ 0.50 (all outtakes and camera jerks are filtered out into <code>OUTTAKES</code>).</li>
+<li>Serves as the guaranteed fallback for all clean footage so 100% of the timeline is covered.</li>
+</ul>
+<hr />
+<h2>4. Scene Cut &amp; Joint Detection Metrics</h2>
+<p>Scene boundaries are calculated using dual-modality computer vision and audio VAD:</p>
+<ol>
+<li><strong>Pixel-Level Absolute Motion Difference</strong>:</li>
+<li>Formula: <code>Δ_motion = (1 / (W × H)) × Σ |I_t(x, y) - I_{t-1}(x, y)|</code></li>
+<li>Cut Threshold: <strong>Δ_motion ≥ 22.0</strong>.</li>
+<li><strong>Normalized Color Histogram Correlation</strong>:</li>
+<li>Formula: <code>r(H₁, H₂) = Cov(H₁, H₂) / (Std(H₁) × Std(H₂))</code></li>
+<li>Cut Threshold: <strong>r &lt; 0.78</strong>.</li>
+<li><strong>Face Transition Cut</strong>:</li>
+<li>Abrupt appearance or disappearance of a face with <strong>motion diff ≥ 12.0</strong>.</li>
+<li><strong>Voice Activity Detection (VAD) Silence Boundaries</strong>:</li>
+<li>Speech silence gaps (<strong>&gt; 300ms</strong>) align cuts with natural speech pauses to prevent mid-word clipping.</li>
+</ol>
+<hr />
+<h2>5. Export Specifications &amp; Manifest Schema</h2>
+<h3>5.1 Output Directory Structure</h3>
+<pre><code>backend/output/
+├── HOOKS/
+├── A_ROLLS/
+├── B_ROLLS/
+├── CTA/
+├── ENDSCREENS/
+└── OUTTAKES/
+</code></pre>
+<h3>5.2 Manifest Fields</h3>
+<p>The export manifest files (<code>manifest.json</code> and <code>manifest.csv</code>) include:<br />
+- <code>category</code>: Primary classification category.<br />
+- <code>visual_role</code>: Visual layer (<code>A_ROLL</code>, <code>B_ROLL</code>, <code>GRAPHICS_SLATE</code>, <code>OUTTAKE</code>).<br />
+- <code>narrative_function</code>: Narrative layer (<code>HOOK</code>, <code>CORE_BODY</code>, <code>CTA</code>, <code>ENDSCREEN</code>, <code>DEAD_AIR</code>).<br />
+- <code>quality_score</code>: Production quality rating (0.0 to 1.0).<br />
+- <code>filename</code>: Standardized clip filename.<br />
+- <code>folder_path</code>: Relative output path.<br />
+- <code>source_video</code>: Original source filename.<br />
+- <code>start</code>: Segment start timestamp in seconds.<br />
+- <code>end</code>: Segment end timestamp in seconds.<br />
+- <code>duration</code>: Duration in seconds.<br />
+- <code>confidence</code>: Algorithmic confidence score (0.0 to 1.0).<br />
+- <code>reason</code>: Explanation of classification decision.</p>
+<h3>5.3 Non-Linear Editor (NLE) Support</h3>
+<ul>
+<li><strong>DaVinci Resolve</strong>: Standard CMX 3600 Edit Decision List (<code>.edl</code>).</li>
+<li><strong>Final Cut Pro</strong>: Apple FCPXML 1.8+ (<code>.fcpxml</code>).</li>
+<li><strong>Adobe Premiere Pro</strong>: Markers CSV (<code>.csv</code>).</li>
+</ul>
+</body>
+</html>
